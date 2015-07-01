@@ -1,28 +1,40 @@
 window.MYAPP =window.MYAPP || {}
-MYAPP.testData=[
-	{
-		id:1,
-		name: 'Yash Khandelwal'
+
+MYAPP.Router = Backbone.Router.extend({
+	routes: {
+		'recruiters' : 'showRecruiters',
+		'candidates' : 'showCandidates',
+		'*path' : 'showBoth'
 	},
-	{
-		id:2,
-		name: 'Arpit Singh'
+	showRecruiters: function() {
+		MYAPP.recruiterCollection = new MYAPP.RecruiterCollection();
+		MYAPP.recruiterCollection.fetch();
+		MYAPP.recruiterView = new MYAPP.RecruiterView();
+		MYAPP.recruiterView.render(MYAPP.recruiterCollection);
 	},
-	{
-		id:3,
-		name: 'Someone Else'
+	showCandidates: function(){
+		MYAPP.candidateCollection = new MYAPP.CandidateCollection();
+		MYAPP.candidateCollection.fetch();
+		MYAPP.candidateView = new MYAPP.CandidateView();
+		MYAPP.candidateView.render(MYAPP.candidateCollection);
+	},
+	showBoth: function(){
+		this.showRecruiters();
+		this.showCandidates();
 	}
-]
+});
+
 //Recruiter View
 MYAPP.RecruiterView = Backbone.View.extend({
 	el: $('#recruiter-list'),
 	template: _.template($("#recruiter-list-item").html()),
 	initialize: function(){
-
+		this.render();
     },
     render: function(data){
-    	data=data.toJSON();
-        this.$('.list-group').html(this.template({data}));
+    	if (data)
+    		data=data.toJSON();
+        this.$el.html(this.template({data}));
     },
     events: {
 		"click #add-recruiter": "addRecruiter",
@@ -74,8 +86,9 @@ MYAPP.CandidateView = Backbone.View.extend({
         //this.render();
     },
     render: function(data){
-    	data=data.toJSON();
-        this.$('.list-group').html(this.template({data}));
+    	if(data)
+    		data=data.toJSON();
+        this.$el.html(this.template({data}));
     },
     events: {
 		"click #add-candidate": "addCandidate",
@@ -104,7 +117,8 @@ MYAPP.CandidateView = Backbone.View.extend({
 MYAPP.CandidateModel = Backbone.Model.extend({
 	defaults: {
 		id: 0,
-		name: ''
+		name: '',
+		recruiterId:0
 	}
 });
 //Candidate Collection
@@ -119,14 +133,11 @@ MYAPP.CandidateCollection = Backbone.Collection.extend({
 	comparator: 'id'
 });
 
+MYAPP.MappingView = Backbone.View.extend({
+	model:MYAPP.CandidateModel
+});
 
-MYAPP.candidateCollection = new MYAPP.CandidateCollection();
-MYAPP.recruiterCollection = new MYAPP.RecruiterCollection();
-MYAPP.recruiterCollection.fetch();
-MYAPP.candidateCollection.fetch();
+MYAPP.router = new MYAPP.Router();
+Backbone.history.start();
 
-MYAPP.recruiterView = new MYAPP.RecruiterView();
-MYAPP.candidateView = new MYAPP.CandidateView();
 
-MYAPP.recruiterView.render(MYAPP.recruiterCollection);
-MYAPP.candidateView.render(MYAPP.candidateCollection);

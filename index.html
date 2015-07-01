@@ -17,69 +17,83 @@
         </div>
       </div><!-- /.container-fluid -->
     </nav>
-    <div class="panel panel-default" id="recruiter-list">
-      <div class="panel-heading">Recruiters</div>
-      <div class="panel-heading">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Recruiter Name" id="new-recruiter-name">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="button" id="add-recruiter">
-                  <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                  Add
-                </button>
-              </span>
-            </div><!-- /input-group -->
-          </div><!-- /.col-lg-6 -->
-        </div><!-- /.row -->
+    <div id="content">
+      <div class="panel panel-default" id="recruiter-list">
+
       </div>
-      <div class="panel-body">
-        <div class="list-group">
-          <!--button type="button" class="list-group-item">Amazon</button>
-          <button type="button" class="list-group-item">Adobe</button>
-          <button type="button" class="list-group-item">Oracle</button>
-          <button type="button" class="list-group-item">Hackerrank</button>
-          <button type="button" class="list-group-item">Citrix</button-->
-        </div>
+      <div class="panel panel-default" id="candidate-list">
+
       </div>
     </div>
-    <div class="panel panel-default" id="candidate-list">
-      <div class="panel-heading">Candidates</div>
-      <div class="panel-heading">
-        <div class="row">
-          <div class="col-lg-6">
-            <div class="input-group">
-              <input type="text" class="form-control" placeholder="Candidate Name" id="new-candidate-name">
-              <span class="input-group-btn">
-                <button class="btn btn-default" type="button">
-                  <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
-                  Add
-                </button>
-              </span>
-            </div><!-- /input-group -->
-          </div><!-- /.col-lg-6 -->
-        </div><!-- /.row -->
-      </div>
-      <div class="panel-body">
-        <div class="list-group">
-          <!--button type="button" class="list-group-item">person 1</button>
-          <button type="button" class="list-group-item">person 2</button>
-          <button type="button" class="list-group-item">person 3</button>
-          <button type="button" class="list-group-item">person 4</button>
-          <button type="button" class="list-group-item">person 5</button!-->
+    <script type="text/template" id="recruiter-list-item"> 
+        <div class="panel-heading">Recruiters</div>
+        <div class="panel-heading">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Recruiter Name" id="new-recruiter-name">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button" id="add-recruiter">
+                    <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                    Add
+                  </button>
+                </span>
+              </div><!-- /input-group -->
+            </div><!-- /.col-lg-6 -->
+          </div><!-- /.row -->
         </div>
-      </div>
-    </div>
-    <script type="text/template" id="recruiter-list-item">  
-          <% for ( var i=0;i<data.length;i++ ){ %>
-            <button type="button" class="list-group-item"><%= data[i].name %></button>
-          <% } %>
+        <div class="panel-body">
+          <div class="list-group">
+            <%
+              if (data)
+                for ( var i=0;i<data.length;i++ ){ %>
+                <button type="button" class="list-group-item" id="<%= data[i].id %>">
+                  <%= data[i].name %>
+                </button>
+            <%  } %>
+          </div>
+        </div>
     </script>
-    <script type="text/template" id="candidate-list-item">  
-          <% for ( var i=0;i<data.length;i++ ){ %>
-            <button type="button" class="list-group-item"><%= data[i].name %></button>
-          <% } %>
+    <script type="text/template" id="candidate-list-item">
+        <div class="panel-heading">Candidates</div>
+        <div class="panel-heading">
+          <div class="row">
+            <div class="col-lg-6">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="Candidate Name" id="new-candidate-name">
+                <span class="input-group-btn">
+                  <button class="btn btn-default" type="button">
+                    <span class="glyphicon glyphicon-plus-sign" aria-hidden="true"></span>
+                    Add
+                  </button>
+                </span>
+              </div><!-- /input-group -->
+            </div><!-- /.col-lg-6 -->
+          </div><!-- /.row -->
+        </div>
+        <div class="panel-body">
+          <div class="list-group">
+            <% for ( var i=0;i<data.length;i++ ){ %>
+              <button type="button" class="list-group-item" id="<%= data[i].id %>">
+                <%= data[i].name %>
+              </button>
+            <% } %>
+          </div>
+        </div>
+    </script>
+    <script type="text/template" id="recruiter-template">
+      <div class="panel panel-default">
+        <div class="panel-heading"><%= recruiter %></div>
+        <div class="panel-body">
+          <div class="list-group">
+            <% for ( var i=0;i<candidate.length;i++ ){ %>
+              <button type="button" class="list-group-item" id="<%= candidate[i].id %>">
+                <%= candidate[i].name %>
+              </button>
+            <% } %>
+          </div>
+        </div>
+      </div>
     </script>
     <script type="text/javascript" src="js/jquery-1.11.3.min.js"></script>
     <script type="text/javascript" src="js/bootstrap.min.js"></script>
