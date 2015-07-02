@@ -4,6 +4,8 @@ MYAPP.Router = Backbone.Router.extend({
 	routes: {
 		'recruiters' : 'showRecruiters',
 		'candidates' : 'showCandidates',
+		'assignCandidates/:id' : 'mapCandidates',
+		'listCandidates/:id' : 'listCandidates',
 		'*path' : 'showBoth'
 	},
 	showRecruiters: function() {
@@ -21,9 +23,33 @@ MYAPP.Router = Backbone.Router.extend({
 	showBoth: function(){
 		this.showRecruiters();
 		this.showCandidates();
+	},
+	mapCandidates: function(rid){
+		MYAPP.recruiterCollection = new MYAPP.RecruiterCollection();
+		MYAPP.recruiterCollection.fetch();
+		MYAPP.candidateCollection = new MYAPP.CandidateCollection();
+		MYAPP.candidateCollection.fetch();
+		var recruiter=MYAPP.recruiterCollection.where({id:parseInt(rid)})[0].toJSON();
+		MYAPP.mappingView = new MYAPP.MappingView();
+		MYAPP.mappingView.render(recruiter);
+	},
+	listCandidates: function(rid){
+		MYAPP.recruiterCollection = new MYAPP.RecruiterCollection();
+		MYAPP.recruiterCollection.fetch();
+		MYAPP.candidateCollection = new MYAPP.CandidateCollection();
+		MYAPP.candidateCollection.fetch();
+		var recruiter=MYAPP.recruiterCollection.where({id:parseInt(rid)})[0].toJSON();
+		MYAPP.mappingListView = new MYAPP.MappingListView();
+		MYAPP.mappingListView.render(recruiter);
 	}
 });
-
+//Recruiter Model
+MYAPP.RecruiterModel = Backbone.Model.extend({
+	defaults: {
+		id: 0,
+		name: ''
+	}
+});
 //Recruiter View
 MYAPP.RecruiterView = Backbone.View.extend({
 	el: $('#recruiter-list'),
@@ -38,6 +64,8 @@ MYAPP.RecruiterView = Backbone.View.extend({
     },
     events: {
 		"click #add-recruiter": "addRecruiter",
+		"click .assign-candidates":"assignCandidates",
+		"click .list-candidates":"listCandidates",
 		"keypress #new-recruiter-name"  : "addRecruiterOnEnter",
     },
     addRecruiter: function(e){
@@ -57,14 +85,15 @@ MYAPP.RecruiterView = Backbone.View.extend({
     	if (e.keyCode != 13)
     		return;
     	this.addRecruiter(e);
+    },
+    assignCandidates: function(e){
+    	var rid=parseInt(e.currentTarget.dataset.id);
+    	window.location.href=window.location.href+"/#assignCandidates/"+rid;
+    },
+    listCandidates: function(e){
+    	var rid=parseInt(e.currentTarget.dataset.id);
+    	window.location.href=window.location.href+"/#listCandidates/"+rid;
     }
-});
-//Recruiter Model
-MYAPP.RecruiterModel = Backbone.Model.extend({
-	defaults: {
-		id: 0,
-		name: ''
-	}
 });
 //Recruiter Collection
 MYAPP.RecruiterCollection = Backbone.Collection.extend({
@@ -77,7 +106,14 @@ MYAPP.RecruiterCollection = Backbone.Collection.extend({
 	},
 	comparator: 'id'
 });
-
+//Candidate Model
+MYAPP.CandidateModel = Backbone.Model.extend({
+	defaults: {
+		id: 0,
+		name: '',
+		recruiterId:0
+	}
+});
 //Candidate view
 MYAPP.CandidateView = Backbone.View.extend({
 	el: $('#candidate-list'),
@@ -113,14 +149,6 @@ MYAPP.CandidateView = Backbone.View.extend({
     	this.addCandidate(e);
     }
 });
-//Candidate Model
-MYAPP.CandidateModel = Backbone.Model.extend({
-	defaults: {
-		id: 0,
-		name: '',
-		recruiterId:0
-	}
-});
 //Candidate Collection
 MYAPP.CandidateCollection = Backbone.Collection.extend({
     model: MYAPP.CandidateModel,
@@ -134,7 +162,51 @@ MYAPP.CandidateCollection = Backbone.Collection.extend({
 });
 
 MYAPP.MappingView = Backbone.View.extend({
-	model:MYAPP.CandidateModel
+	el: $('#mapping-area'),
+	template: _.template($("#mapping-template").html()),
+	initialize: function(){
+		//this.render();
+    },
+    render: function(rec){
+    	var cand=MYAPP.candidateCollection.where({recruiterId:0});
+        this.$el.html(this.template({
+        	recruiter:rec,
+        	candidates:cand
+        }));
+    },
+    events: {
+		"click .assign-recruiter": "assignRecruiter"
+    },
+    assignRecruiter: function(e){
+    	var rid=parseInt(e.currentTarget.dataset.rid);
+    	var cid=parseInt(e.currentTarget.dataset.cid);
+    	var candidate=MYAPP.candidateCollection.where({id:cid})[0];
+    	candidate.set({
+    		recruiterId:rid
+    	});
+    	candidate.save();
+    	var rec=MYAPP.recruiterCollection.where({id:rid})[0].toJSON();
+    	this.render(rec);
+    }
+});
+
+MYAPP.MappingListView = Backbone.View.extend({
+	el: $('#mapping-area'),
+	template: _.template($("#mapping-list-template").html()),
+	initialize: function(){
+		//this.render();
+    },
+    render: function(rec){
+    	var rid=parseInt(rec.id);
+    	var cand=MYAPP.candidateCollection.where({recruiterId:rid});
+        this.$el.html(this.template({
+        	recruiter:rec,
+        	candidates:cand
+        }));
+    },
+    events: {
+		"click .assign-recruiter": "assignRecruiter"
+    }
 });
 
 MYAPP.router = new MYAPP.Router();
